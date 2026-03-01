@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUST BETTING APP</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+body{
+  background:linear-gradient(to bottom right,#020617,#020617cc),
+  url("https://images.unsplash.com/photo-1511765224389-37f0e77cf0eb");
+  background-size:cover;
+  background-position:center;
+  color:#fff;
+  min-height:100vh;
+}
+
+/* SCREEN */
+.screen{display:none;padding:20px;}
+.active{display:block}
+
+/* CENTER */
+.center{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+/* SPLASH */
+.logo{
+  font-size:48px;
+  font-weight:bold;
+  color:#22c55e;
+}
+
+/* CARD */
+.card{
+  background:rgba(2,6,23,.9);
+  padding:25px;
+  border-radius:25px;
+  width:100%;
+  max-width:350px;
+  box-shadow:0 20px 50px rgba(0,0,0,.7);
+}
+
+input,select{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border-radius:12px;
+  border:none;
+}
+
+/* BUTTON */
+.btn{
+  margin-top:15px;
+  height:50px;
+  width:100%;
+  border-radius:999px;
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  border:none;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.btn:hover{transform:translateY(-2px)}
+
+/* TOP BAR */
+.topbar{
+  position:sticky;
+  top:0;
+  background:rgba(2,6,23,.95);
+  padding:12px 10px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  z-index:100;
+}
+
+/* TAB BUTTON */
+.tab-btn{
+  padding:10px 20px;
+  border-radius:999px;
+  border:1px solid #22c55e;
+  background:transparent;
+  color:#22c55e;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.tab-btn.active{
+  background:#22c55e;
+  color:#020617;
+}
+
+/* BALANCE */
+.balance{
+  text-align:center;
+  margin:15px 0;
+  font-weight:bold;
+  color:#22c55e;
+}
+
+/* MATCH BOX */
+.match{
+  background:rgba(2,6,23,.9);
+  padding:15px;
+  border-radius:25px;
+  margin-bottom:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,.6);
+}
+
+/* LIVE BADGE */
+.live{
+  color:#ef4444;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SPLASH -->
+<div id="splash" class="screen active">
+  <div class="center">
+    <div class="logo">WATOTO WA KANJI BETTING APP</div>
+    <p>Winning starts here!</p>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="screen">
+  <div class="center">
+    <div class="card">
+      <h2 style="text-align:center">Login</h2>
+      <input id="phone" placeholder="Phone Number">
+      <input id="password" type="password" placeholder="Password">
+      <button class="btn" onclick="login()">LOGIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="screen">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <button class="tab-btn active" onclick="openTab('matches',this)">MATCHES</button>
+    <button class="tab-btn" onclick="openTab('live',this)">LIVE BET</button>
+    <button class="tab-btn" onclick="openTab('deposit',this)">DEPOSIT</button>
+    <button class="tab-btn" onclick="openTab('bet',this)">PLACE BET</button>
+  </div>
+
+  <div class="balance" id="balance">Balance: $0.00</div>
+
+  <!-- PREMATCH -->
+  <div id="matches">
+    <h3>Pre-Match</h3>
+    <div id="matchList"></div>
+  </div>
+
+  <!-- LIVE BET -->
+  <div id="live" style="display:none">
+    <h3><span class="live">● LIVE</span> Matches</h3>
+    <div id="liveList"></div>
+  </div>
+
+  <!-- DEPOSIT -->
+  <div id="deposit" style="display:none">
+    <h3>Deposit</h3>
+    <input type="number" id="depositAmount" placeholder="Amount">
+    <button class="btn" onclick="deposit()">DEPOSIT</button>
+  </div>
+
+  <!-- BET -->
+  <div id="bet" style="display:none">
+    <h3>Place Bet</h3>
+    <select id="betMatch"></select>
+    <input type="number" id="betAmount" placeholder="Bet Amount">
+    <button class="btn" onclick="placeBet()">PLACE BET</button>
+  </div>
+
+</div>
+
+<script>
+let balance=0;
+
+/* PREMATCH */
+const matches=[
+ {id:1,a:"Team Alpha",b:"Team Beta",odds:"1.8 / 2.0"},
+ {id:2,a:"Lions",b:"Tigers",odds:"1.5 / 2.5"}
+];
+
+/* LIVE MATCHES – SASA NI 5 */
+let liveMatches=[
+ {id:101,a:"Arsenal",b:"Chelsea",oddA:1.90,oddB:1.95},
+ {id:102,a:"Real Madrid",b:"Barcelona",oddA:2.10,oddB:1.75},
+ {id:103,a:"Man City",b:"Liverpool",oddA:1.85,oddB:2.05},
+ {id:104,a:"PSG",b:"Bayern",oddA:2.30,oddB:1.60},
+ {id:105,a:"Juventus",b:"Inter",oddA:1.95,oddB:1.90}
+];
+
+setTimeout(()=>showScreen("login"),2000);
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function login(){
+  if(phone.value && password.value){
+    showScreen("app");
+    loadMatches();
+    loadLive();
+  }else alert("Fill all fields");
+}
+
+function openTab(tab,btn){
+  ["matches","live","deposit","bet"].forEach(s=>{
+    document.getElementById(s).style.display="none";
+  });
+  document.getElementById(tab).style.display="block";
+
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+/* LOAD PREMATCH */
+function loadMatches(){
+  const list=document.getElementById("matchList");
+  const select=document.getElementById("betMatch");
+  list.innerHTML="";
+  select.innerHTML="";
+  matches.forEach(m=>{
+    list.innerHTML+=`
+      <div class="match">
+        <b>${m.a}</b> vs <b>${m.b}</b><br>
+        Odds: ${m.odds}
+      </div>`;
+    select.innerHTML+=`<option>${m.a} vs ${m.b}</option>`;
+  });
+}
+
+/* LOAD LIVE */
+function loadLive(){
+  const list=document.getElementById("liveList");
+  list.innerHTML="";
+  liveMatches.forEach(m=>{
+    list.innerHTML+=`
+      <div class="match">
+        <span class="live">● LIVE</span><br>
+        <b>${m.a}</b> (${m.oddA.toFixed(2)}) vs 
+        <b>${m.b}</b> (${m.oddB.toFixed(2)})
+      </div>`;
+  });
+}
+
+/* AUTO UPDATE LIVE ODDS */
+setInterval(()=>{
+  liveMatches.forEach(m=>{
+    m.oddA += (Math.random()-0.5)*0.1;
+    m.oddB += (Math.random()-0.5)*0.1;
+    if(m.oddA<1.2) m.oddA=1.2;
+    if(m.oddB<1.2) m.oddB=1.2;
+  });
+  loadLive();
+},2000);
+
+/* MONEY */
+function deposit(){
+  const amt=Number(depositAmount.value);
+  if(amt>0){
+    balance+=amt;
+    updateBalance();
+    depositAmount.value="";
+  }
+}
+
+function placeBet(){
+  const amt=Number(betAmount.value);
+  if(amt<=0 || amt>balance){
+    alert("Invalid amount");
+    return;
+  }
+  balance-=amt;
+  updateBalance();
+  betAmount.value="";
+  alert("Bet placed");
+}
+
+function updateBalance(){
+  document.getElementById("balance").textContent=`Balance: $${balance.toFixed(2)}`;
+}
+</script>
+
+</body>
+</html>
